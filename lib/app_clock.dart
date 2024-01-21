@@ -1,3 +1,10 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:clock_app/custom_clock/dot_widget.dart';
+import 'package:clock_app/custom_clock/hours_widget.dart';
+import 'package:clock_app/custom_clock/minutes_widget.dart';
+import 'package:clock_app/custom_clock/seconds_widget.dart';
 import 'package:flutter/material.dart';
 
 class AppClock extends StatefulWidget {
@@ -8,41 +15,45 @@ class AppClock extends StatefulWidget {
 }
 
 class _AppClockState extends State<AppClock> {
+  double minutes = 0;
+  double seconds = 0;
+  double hours = 0;
+  late Timer timer;
+  @override
+  void initState() {
+    timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      DateTime now = DateTime.now();
+      setState(() {
+        seconds = (pi / 30) * now.second;
+        hours = (pi / 6 * now.hour) + (pi / 45 * minutes);
+        minutes = (pi / 30) * now.minute;
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color.fromARGB(8, 25, 35, 1),
+      color: const Color.fromRGBO(8, 25, 35, 1),
       alignment: const Alignment(0, 0),
-      child: Stack(
-        children: [
-          Center(
-            child: Image.asset(
-              "assets/clock.png",
-              color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Stack(
+          children: [
+            Center(
+              child: Image.asset(
+                "assets/clock.png",
+              ),
             ),
-          ),
-          
-          Container(
-            alignment: const Alignment(0, 0),
-            child: Container(
-              height: 15,
-              width: 15,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Colors.white),
+            SecondsWidget(
+              seconds: seconds,
             ),
-          ),
-          Container(
-            alignment: const Alignment(0, -0.35),
-            child: Container(
-              height: 230,
-              width: 4,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Colors.white),
-            ),
-          ),
-        ],
+            HoursWidget(hours: hours),
+            MinutesWidget(minutes: minutes),
+            const DotWidget()
+          ],
+        ),
       ),
     );
   }
